@@ -1,0 +1,157 @@
+import time
+
+file = open("Logins.txt","r")
+logins = []
+for line in file:
+    user = line.strip("\n")
+    user = user.split(",")
+    logins.append(user)
+file.close()
+
+auth = False
+end = False
+
+while end == False:
+    option = input("1.Log In\n2.Sign Up\n")
+    while option != "1" and option != "2":
+        option = input("Invalid entry, please try again\n")
+    
+    if option == "1":
+        valid = False
+        found = False
+        count = 0
+        while True:
+            count += 1
+            username = input("Username:")
+            if username == "#":
+                print("\nReturning to previous page\n")
+                time.sleep(1)
+                break
+            for i in logins:
+                if i[0] == username:
+                    found = True
+                    if i[1] != "-":
+                        valid = True
+                        break
+            if count == 3 and valid == False:
+                print("\nYou appear to be having trouble with your username, please contact me.")
+                end = True
+                break
+            if found == True and valid == False:
+                print("You appear to be entering an authentication code. If so, please enter # to go back, and select Sign Up instead.")
+                print("If not, your username is incorrect. Please try again, ensuring it is spelt correctly and capital letters are in the right places.\n")
+            elif found == False:
+                print("Your username is not recognised. \nPlease try again, ensuring it is spelt correctly and capital letters are in the right places.\n")
+            else:
+                break
+        
+        if valid == True:
+            count = 3
+            while True:
+                count -= 1
+                password = input("Password:")
+                if password == "#":
+                    print("\nReturning to previous page\n")
+                    time.sleep(1)
+                    break
+                if i[1] == password:
+                    auth = True
+                    size = int(i[2])
+                    end = True
+                    print("\nWelcome",username,":)")
+                    break
+                if count == 0 and auth == False:
+                    print("\nToo many failed attempts, you have been locked out.")
+                    end = True
+                    break
+                else:
+                    print("Incorrect password, " + str(count) + " attempts remaining.")
+
+    if option == "2":
+        valid = False
+        count = 0
+        while True:
+            count += 1
+            code = input("Authentication code:")
+            if code == "#":
+                print("\nReturning to previous page\n")
+                time.sleep(1)
+                break
+            for i in logins:
+                if i[0] == code and i[1] == "-":
+                    valid = True
+                    print("Authentication code verrified.\n")
+                    break
+            if count == 3 and valid == False:
+                print("\nYou appear to be having trouble with your authentication code, please contact me.")
+                end = True
+                break
+            if valid == False:
+                print("Your authentication code is not valid, please double check its digits and try again.\n")
+            else:
+                break
+        
+        if valid == True:
+            check = "N"
+            while check == "N":
+                username = input("Please choose a username:")
+                if username == "#":
+                    print("\nReturning to previous page\n")
+                    time.sleep(1)
+                    break
+                for i in logins:
+                    while i[0] == username:
+                        username = input("Username is already taken, please choose something else:")
+                check = input("Please confirm you wish to set your username to " + username + "(Y/N)?").upper()
+                while check != "Y" and check != "N":
+                    check = input("Invalid input.\nPlease confirm you wish to set your username to " + username + "(Y/N)?").upper()
+            
+            print("\nHello " + username + "\n")
+            check = "N"
+            while check == "N":
+                password = input("Please set your password:")
+                if password == "#":
+                    print("\nReturning to previous page\n")
+                    time.sleep(1)
+                    break
+                print("Please know this password may be accessible to me or others if I cannot work out how to hide them.")
+                check = input("Do you still wish to set your password to " + password + "(Y/N)?").upper()
+                while check != "Y" and check != "N":
+                    check = input("Invalid input.\nDo you still wish to set your password to " + password + "(Y/N)?").upper()
+            
+            print("\nYou are almost set up now, just one last thing.\n")
+            print("For the best user experience I need to know the width of your screen.")
+            check = "N"
+            while check == "N":
+                print("Please select from the 5 options below which fits your screen best WITHOUT spilling over.\n"\
+                        "(you may wish to change your font size to get the best fit possible)")
+                print("\n1." + "#"*148 + "\n\n2." + "#"*198 + "\n\n3." + "#"*248 + "\n\n4." + "#"*298 + "\n\n5" + "#"*348)
+                while True:
+                    try:
+                        size = int(input())
+                        if size > 0 and size < 6:
+                            size = size*50 + 100
+                            break
+                        print("Invalid input, please try again")
+                    except:
+                        print("Invalid input, please try again")
+                check = input("#"*size + "\nPlease confirm this fits your screen best WITHOUT spilling over (Y/N)?").upper()
+                while check != "Y" and check != "N":
+                    check = input("Invalid input.\nPlease confirm this fits your screen best WITHOUT spilling over (Y/N)?").upper()
+                
+                print("\nThank you, now you are all set up.\nAny of the choices you have just made can be changed in settings at any point.\n\nPlease enjoy :)")
+                end = True
+                auth = True
+                
+        for i in logins:
+            if i[0] == code:
+                i[0] = username
+                i[1] = password
+                i[2] = size
+                break
+        
+        file = open("Logins.txt","w")
+        for i in logins:
+            add = i[0] + "," + i[1] + "," + str(i[2]) + "\n"
+            file.write(add)
+        file.close()
